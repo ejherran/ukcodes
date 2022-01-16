@@ -18,6 +18,23 @@ class TextUtility:
             return False
     
     @staticmethod
+    def validCoordinate(line: str) -> bool:
+        
+        try:
+            line = line.split(',')
+            lat = float(line[0])
+            lon = float(line[1])
+
+            if (lat >= -90 and lat <= 90) and (lon >= -180 and lon <= 180):
+                return True
+            else:
+                return False
+                
+        except:
+            return False
+
+
+    @staticmethod
     def warninRegister(warnings: dict, category: str, data: str) -> dict:
         
         if category in warnings:

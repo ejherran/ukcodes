@@ -25,15 +25,13 @@ class FileAnalizer:
                     break
                 
                 line_count += 1
-                print(line_count)
-
+                
                 line = TextUtility.clean_line(line)
 
                 if line_count == 1:
                         
                     header = TextUtility.match_regex('^lat,lon$', line)
                     if not header:
-                        print("vexor")
                         warnings = TextUtility.warninRegister(warnings, 'header', 'The first line does not match the header format (lat,lon).')
                     else:
                         ignored_lines += 1
@@ -45,13 +43,21 @@ class FileAnalizer:
 
                     if match_format:
 
-                        line = line.split(',')
-                        coordinate = (float(line[0]), float(line[1]))
-                        coordinates.add(coordinate)
+                        coordinates.add(line)
 
                     else:
-                        ignored_lines += 1
-                        warnings = TextUtility.warninRegister(warnings, 'wrong_coordinate_data', str(line_count))
+
+                        scientific_pattern = TextUtility.match_regex('^-?[\d.]+(?:[eE]-?\d+)?,-?[\d.]+(?:[eE]-?\d+)?$', line)
+                        if scientific_pattern:
+                            
+                            if TextUtility.validCoordinate(line):
+                                coordinates.add(line)
+                            else:
+                                ignored_lines += 1
+                                warnings = TextUtility.warninRegister(warnings, 'wrong_coordinate_data', str(line_count))
+                        else:
+                            ignored_lines += 1
+                            warnings = TextUtility.warninRegister(warnings, 'wrong_coordinate_data', str(line_count))
                     
                 else:
                     ignored_lines += 1
