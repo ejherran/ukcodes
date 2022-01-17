@@ -32,4 +32,4 @@ async def get_task_status(task_id: str):
         return {'statusCode': 500, 'status': 'Internal Server Error'}
     
     else:
-        return {'statusCode': 200, 'status': 'Pendiente'}
+        return {'statusCode': 200, 'status': 'OK', 'success': True, 'message': 'The task is still running.'}
