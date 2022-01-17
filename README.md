@@ -97,7 +97,7 @@ El siguiente diagrama ilustra conceptual mente el diseño interno del sistema:
 Para poner en marcha el sistema basta con ejecutar el comando:
 
 ```console
-docker-compose up -d –build 
+docker-compose up -d --build 
 ```
 
 Estando en el directorio principal del proyecto. Se recomienda el uso de docker-compose integrado como plugin de docker y con una versión igual o superior a 2.2.0.
