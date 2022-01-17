@@ -6,8 +6,8 @@ from rabbit_publisher import RabbitPublisher
 
 rabbit_host = os.environ.get('RABBIT_HOST', 'localhost')
 rabbit_port = os.environ.get('RABBIT_PORT', '5672')
-rabbit_user = os.environ.get('RABBIT_USER', 'guest')
-rabbit_password = os.environ.get('RABBIT_PASSWORD', 'guest')
+rabbit_user = os.environ.get('RABBIT_USER', 'rabbit')
+rabbit_password = os.environ.get('RABBIT_PASSWORD', 'QweZxc123')
 rabbit_vhost = os.environ.get('RABBIT_VHOST', 'my_vhost')
 rabbit_queue = os.environ.get('RABBIT_QUEUE', 'coordinates_to_process')
 rabbit_url = f'amqp://{rabbit_user}:{rabbit_password}@{rabbit_host}:{rabbit_port}/{rabbit_vhost}'
@@ -31,25 +31,25 @@ def analyze_file(data: str) -> dict:
     return warnings
 
 @app.task
-def send_coordinates(data: list) -> str:
+def send_coordinates(coordinates: list) -> str:
     
     count = 0
 
-    while len(data) > 0:
+    while len(coordinates) > 0:
         count += 1
 
-        if len(data) >= 100:
-            asyncio.run(put_to_queue(data[:100]))
-            data = data[100:]
+        if len(coordinates) >= 100:
+            asyncio.run(put_to_queue(coordinates[:100]))
+            coordinates = coordinates[100:]
         else:
-            asyncio.run(put_to_queue(data))
+            asyncio.run(put_to_queue(coordinates))
             break
 
-    return f'{count} messages sent to {rabbit_queue} queue.'
+    return f'{count} coordinates packages sent to "{rabbit_queue}" queue.'
 
-async def put_to_queue(data: list) -> None:
+async def put_to_queue(coordinates: list) -> None:
 
     publisher = RabbitPublisher(rabbit_url, rabbit_queue)
     await publisher.connect()
-    await publisher.send(data)
+    await publisher.send(coordinates)
 

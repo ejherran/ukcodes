@@ -5,25 +5,42 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
+    restart: on-failure
     environment:
         - RABBITMQ_DEFAULT_VHOST=my_vhost
+        - RABBITMQ_DEFAULT_USER=rabbit
+        - RABBITMQ_DEFAULT_PASS=QweZxc123
     ports:
         - 5672:5672
         - 15672:15672
     volumes:
-        - ./.env/rabbit/data/:/var/lib/rabbitmq/
-        - ./.env/rabbit/log/:/var/log/rabbitmq/
+        - ./.env/rabbit/data:/var/lib/rabbitmq
     networks:
         - inner
   
   redis-broker:
     image: redis:6.2-alpine
-    restart: always
+    restart: on-failure
     ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass QweZxc123
     volumes: 
-      - ./.env/redis-broker/data/:/data
+      - ./.env/redis-broker/data:/data
+    networks:
+      - inner
+  
+  mariadb:
+    image: mariadb:10.7
+    restart: on-failure
+    ports:
+      - 13306:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: QweZxc123
+      MARIADB_DATABASE: ukcodes
+    volumes:
+      - ./.env/mariadb/data:/var/lib/mysql
+    networks:
+      - inner
 
 networks:
   inner:

@@ -7,20 +7,11 @@ services:
       context: ./endpoint
       dockerfile: endpoint.Dockerfile
     ports:
-      - 8004:8000
+      - 8000:8000
     command: uvicorn main:app --host 0.0.0.0 --reload
     restart: on-failure
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=guest
-      - RABBIT_PASSWORD=guest
-      - RABBIT_VHOST=my_vhost
-      - RABBIT_QUEUE=coordinates_to_process
-      - REDIS_HOST=redis-broker
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=QweZxc123
-      - REDIS_DB=0
+    env_file:
+      - env_vars
     networks:
       - inner
     depends_on:
@@ -32,21 +23,12 @@ services:
       dockerfile: worker.Dockerfile
     command: celery -A tasks worker -l INFO
     restart: on-failure
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=guest
-      - RABBIT_PASSWORD=guest
-      - RABBIT_VHOST=my_vhost
-      - RABBIT_QUEUE=coordinates_to_process
-      - REDIS_HOST=redis-broker
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=QweZxc123
-      - REDIS_DB=0
+    env_file:
+      - env_vars
     networks:
       - inner
     depends_on:
-      - redis-broker
+      - redis
       - rabbitmq
 
   consumer:
@@ -55,40 +37,65 @@ services:
       dockerfile: consumer.Dockerfile
     command: python -u main.py
     restart: on-failure
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=guest
-      - RABBIT_PASSWORD=guest
-      - RABBIT_VHOST=my_vhost
-      - RABBIT_QUEUE=coordinates_to_process
+    env_file:
+      - env_vars
     networks:
       - inner
     depends_on:
       - rabbitmq
+      - redis
+      - worker-consumer
+
+  worker-consumer:
+    build:
+      context: ./consumer
+      dockerfile: worker.Dockerfile
+    command: celery -A tasks worker -l INFO
+    restart: on-failure
+    env_file:
+      - env_vars
+    networks:
+      - inner
+    depends_on:
+      - rabbitmq
+      - mariadb
 
   rabbitmq:
     image: rabbitmq:3-alpine
     environment:
         - RABBITMQ_DEFAULT_VHOST=my_vhost
-    ports:
-        - 5672:5672
+        - RABBITMQ_DEFAULT_USER=rabbit
+        - RABBITMQ_DEFAULT_PASS=QweZxc123
+    #ports:
+    #    - 5672:5672
     networks:
         - inner
     volumes:
         - ./.env/rabbit/data/:/var/lib/rabbitmq/
-        - ./.env/rabbit/log/:/var/log/rabbitmq/
   
-  redis-broker:
+  redis:
     image: redis:6.2-alpine
     restart: on-failure
-    ports:
-      - '6379:6379'
+    #ports:
+    #  - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning --requirepass QweZxc123
     networks:
       - inner
     volumes: 
       - ./.env/redis-broker/data/:/data
+  
+  mariadb:
+    image: mariadb:10.7
+    restart: on-failure
+    #ports:
+    #  - 3306:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: QweZxc123
+      MARIADB_DATABASE: ukcodes
+    volumes:
+      - ./.env/mariadb/data:/var/lib/mysql
+    networks:
+      - inner
 
 networks:
   inner:
