@@ -16,20 +16,20 @@ class FileAnalizer:
 
         line_count = 0
 
-        lines = self.data.split('\n')
-        lines = TextUtility.remove_ghost_line(lines)
+        self.data = TextUtility.block_to_lines(self.data)
 
-        for line in lines:
+        self.data = TextUtility.remove_ghost_line(self.data)
+
+        for line in self.data:
 
             line_count += 1
             
-            #line = TextUtility.clean_line(line)
 
             if line_count == 1:
                     
                 header = TextUtility.match_regex('^lat,lon$', line)
                 if not header:
-                    warnings = TextUtility.warninRegister(warnings, 'header', 'The first line does not match the header format (lat,lon).')
+                    warnings = TextUtility.warninRegister(warnings, 'header', 'The first line does not match the header format (lat,lon).'+str(len(line)))
                 else:
                     ignored_lines += 1
                     continue

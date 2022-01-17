@@ -9,6 +9,12 @@ class TextUtility:
             lines.pop()
         
         return lines
+    
+    @staticmethod
+    def block_to_lines(block: str) -> list:
+        
+        block = block.replace('\r', '')
+        return block.split('\n')
 
     @staticmethod
     def clean_line(line: bytearray) -> str:
@@ -29,6 +35,7 @@ class TextUtility:
     def validCoordinate(line: str) -> bool:
         
         try:
+            
             line = line.split(',')
             lat = float(line[0])
             lon = float(line[1])
