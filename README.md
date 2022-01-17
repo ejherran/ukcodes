@@ -12,6 +12,7 @@ Su ciclo de ejecución es el siguiente:
 
 4. Los elementos del paquete que no son descartados por la cache de eliminación, se usan para formar un cuerpo de consulta json compatible con la acción “Bulk Reverse Geocoding” del API de postcodes.io (api.postcodes.io/postcodes). Se usa el siguiente formato, con un máximo de 100 elementos:
 
+```json
 {
   "geolocations" : [{
     "longitude":  0.629834723775309,
@@ -23,9 +24,10 @@ Su ciclo de ejecución es el siguiente:
     "limit": 1
   }]
 }
+```
 
 5. Se utiliza la librería REQUESTS para hacer la consulta POST al API y luego se verifican los resultados de cada coordenada, para eliminar aquellas que den un resultado nulo. La respuesta tiene la siguiente forma:
-
+```json
 {
     "status": 200,
     "result": [
@@ -80,6 +82,7 @@ Su ciclo de ejecución es el siguiente:
         }
     ]
 }
+```
 
 6. Las coordenadas que han generado una respuesta valida, son enviadas mediante un broker RabbitMQ a un worker en segundo plano, el cual abre una conexión a base de datos por cada conjunto de datos validos (entre 1 y 100 coordenadas). La información se almacena en tres tablas simples, a saber: Una con la lista de coordenadas (coordinate), una con los datos principales de cada código postal vinculado a su coordenada (postcode) y una con los códigos seriales de cada código postal (codes).
 Dado que el usuario puede subir archivos realmente grandes y que la consulta efectiva al API de postcodes.io es efectivamente un cuello de botella; se opto por una arquitectura que mantuviera todos los procesos “lentos” en segundo plano, permitiendo dar una respuesta rápida al usuario, y manteniendo un flujo de trabajo fácilmente escalable.
@@ -93,7 +96,9 @@ El siguiente diagrama ilustra conceptual mente el diseño interno del sistema:
 
 Para poner en marcha el sistema basta con ejecutar el comando:
 
+```console
 docker-compose up -d –build 
+```
 
 Estando en el directorio principal del proyecto. Se recomienda el uso de docker-compose integrado como plugin de docker y con una versión igual o superior a 2.2.0.
 
