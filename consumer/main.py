@@ -12,10 +12,11 @@ from post_codes_processor import PostCodesProcessor
 async def process_message(message: bytes) -> None:
     
     coordinates = json.loads(message.decode('utf-8'))
-    post_codes = PostCodesClient(coordinates).get_postcodes()
-    post_codes = PostCodesProcessor(post_codes).process_post_codes()
+    print(len(coordinates))
+    # post_codes = PostCodesClient(coordinates).get_postcodes()
+    # post_codes = PostCodesProcessor(post_codes).process_post_codes()
 
-    print(len(post_codes))
+    # print(len(post_codes))
 
 async def main(loop: asyncio.AbstractEventLoop) -> aio_pika.connection.Connection:
     
@@ -24,7 +25,7 @@ async def main(loop: asyncio.AbstractEventLoop) -> aio_pika.connection.Connectio
     rabbit_user = os.environ.get('RABBIT_USER', 'guest')
     rabbit_password = os.environ.get('RABBIT_PASSWORD', 'guest')
     rabbit_queue = os.environ.get('RABBIT_QUEUE', 'coordinates_to_process')
-    rabbit_client = RabbitConsumer(loop, f'amqp://{rabbit_user}:{rabbit_password}@{rabbit_host}:{rabbit_port}/', rabbit_queue, process_message)
+    rabbit_client = RabbitConsumer(loop, f'amqp://{rabbit_user}:{rabbit_password}@{rabbit_host}:{rabbit_port}/my_vhost', rabbit_queue, process_message)
     connection = await rabbit_client.connect()
 
     return connection

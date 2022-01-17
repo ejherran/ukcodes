@@ -3,6 +3,14 @@ import re
 class TextUtility:
 
     @staticmethod
+    def remove_ghost_line(lines: list) -> list:
+
+        if lines[-1] == '':
+            lines.pop()
+        
+        return lines
+
+    @staticmethod
     def clean_line(line: bytearray) -> str:
         line = line.decode('utf-8')
         line = line.replace('\r', '')

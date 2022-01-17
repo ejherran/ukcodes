@@ -3,33 +3,69 @@ version: '3.8'
 services:
 
   endpoint:
-    build: ./endpoint
+    build:
+      context: ./endpoint
+      dockerfile: endpoint.Dockerfile
     ports:
       - 8004:8000
     command: uvicorn main:app --host 0.0.0.0 --reload
-    volumes:
-      - ./endpoint:/usr/src/app
-  
-  consumer:
-    build: ./consumer
-    command: python -u main.py
     restart: on-failure
     environment:
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=guest
       - RABBIT_PASSWORD=guest
-      - RABBIT_QUEUE=coordinates_to_process
+      - RABBIT_VHOST=my_vhost
+      - RABBIT_QUEUE=tmp_queue
+    networks:
+      - inner
+    depends_on:
+      - worker-endpoint
     volumes:
-      - ./consumer:/usr/src/app
+      - ./endpoint/src:/usr/src/app
+  
+  worker-endpoint:
+    build:
+      context: ./endpoint
+      dockerfile: worker.Dockerfile
+    command: celery -A tasks worker -l INFO
+    restart: on-failure
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+      - RABBIT_VHOST=my_vhost
+      - RABBIT_QUEUE=tmp_queue
     networks:
       - inner
     depends_on:
       - rabbitmq
+    #volumes:
+    #  - ./endpoint/src:/usr/src/app
+
+#   consumer:
+#     build: ./consumer
+#     command: python -u main.py
+#     restart: on-failure
+#     environment:
+#       - RABBIT_HOST=rabbitmq
+#       - RABBIT_PORT=5672
+#       - RABBIT_USER=guest
+#       - RABBIT_PASSWORD=guest
+#       - RABBIT_VHOST=my_vhost
+#       - RABBIT_QUEUE=coordinates_to_process
+#     volumes:
+#       - ./consumer:/usr/src/app
+#     networks:
+#       - inner
+#     depends_on:
+#       - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-alpine
-    container_name: 'rabbitmq'
+    environment:
+        - RABBITMQ_DEFAULT_VHOST=my_vhost
     ports:
         - 5672:5672
     volumes:
