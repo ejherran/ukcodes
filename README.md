@@ -80,12 +80,13 @@ Su ciclo de ejecución es el siguiente:
         }
     ]
 }
+
 6. Las coordenadas que han generado una respuesta valida, son enviadas mediante un broker RabbitMQ a un worker en segundo plano, el cual abre una conexión a base de datos por cada conjunto de datos validos (entre 1 y 100 coordenadas). La información se almacena en tres tablas simples, a saber: Una con la lista de coordenadas (coordinate), una con los datos principales de cada código postal vinculado a su coordenada (postcode) y una con los códigos seriales de cada código postal (codes).
 Dado que el usuario puede subir archivos realmente grandes y que la consulta efectiva al API de postcodes.io es efectivamente un cuello de botella; se opto por una arquitectura que mantuviera todos los procesos “lentos” en segundo plano, permitiendo dar una respuesta rápida al usuario, y manteniendo un flujo de trabajo fácilmente escalable.
 
 El siguiente diagrama ilustra conceptual mente el diseño interno del sistema: 
 
-IMG
+[alt text](https://github.com/ejherran/ukcodes/blob/main/img/arq.png?raw=true)
 
 
 # EJECUCIÓN:
@@ -102,7 +103,8 @@ Puede usar el comando docker logs -f [container] para ver en primer plano los me
 
 Para consumir el “endpoint” se recomienda el uso de PostMan, como si ilustra a continuación.
 
-IMG
-IMG
+[alt text](https://github.com/ejherran/ukcodes/blob/main/img/post.png?raw=true)
+
+[alt text](https://github.com/ejherran/ukcodes/blob/main/img/get.png?raw=true)
 
 Para conocer el razonamiento detrás de esta “abominación” consulte el archivo argument.txt
