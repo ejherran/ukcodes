@@ -9,8 +9,8 @@ Base = declarative_base()
 class Coordinate(Base):
     __tablename__ = 'coordinate'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    latitude = sqlalchemy.Column(sqlalchemy.Float)
-    longitude = sqlalchemy.Column(sqlalchemy.Float)
+    latitude = sqlalchemy.Column(sqlalchemy.String(255))
+    longitude = sqlalchemy.Column(sqlalchemy.String(255))
 
 class Postcode(Base):
     __tablename__ = 'postcode'
@@ -137,3 +137,12 @@ class Db:
         self.session.commit()
 
         return entity.id
+    
+    def get_coordinates(self) -> list[str]:
+        
+        existent_coordinates = []
+        coordinates = self.session.query(Coordinate).all()
+        for coordinate in coordinates:
+            existent_coordinates.append(str(coordinate.latitude) + ',' + str(coordinate.longitude))
+        
+        return existent_coordinates

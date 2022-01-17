@@ -82,7 +82,7 @@ services:
     networks:
       - inner
     volumes: 
-      - ./.env/redis-broker/data/:/data
+      - ./.env/redis/data/:/data
   
   mariadb:
     image: mariadb:10.7

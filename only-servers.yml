@@ -18,14 +18,14 @@ services:
     networks:
         - inner
   
-  redis-broker:
+  redis:
     image: redis:6.2-alpine
     restart: on-failure
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass QweZxc123
     volumes: 
-      - ./.env/redis-broker/data:/data
+      - ./.env/redis/data:/data
     networks:
       - inner
   
