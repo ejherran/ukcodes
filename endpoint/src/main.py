@@ -1,5 +1,4 @@
 from fastapi import FastAPI, File, UploadFile
-from file_analyzer import FileAnalizer
 
 from celery.result import AsyncResult
 from tasks import analyze_file

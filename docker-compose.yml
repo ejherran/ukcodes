@@ -16,13 +16,15 @@ services:
       - RABBIT_USER=guest
       - RABBIT_PASSWORD=guest
       - RABBIT_VHOST=my_vhost
-      - RABBIT_QUEUE=tmp_queue
+      - RABBIT_QUEUE=coordinates_to_process
+      - REDIS_HOST=redis-broker
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=QweZxc123
+      - REDIS_DB=0
     networks:
       - inner
     depends_on:
       - worker-endpoint
-    volumes:
-      - ./endpoint/src:/usr/src/app
   
   worker-endpoint:
     build:
@@ -36,31 +38,34 @@ services:
       - RABBIT_USER=guest
       - RABBIT_PASSWORD=guest
       - RABBIT_VHOST=my_vhost
-      - RABBIT_QUEUE=tmp_queue
+      - RABBIT_QUEUE=coordinates_to_process
+      - REDIS_HOST=redis-broker
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=QweZxc123
+      - REDIS_DB=0
+    networks:
+      - inner
+    depends_on:
+      - redis-broker
+      - rabbitmq
+
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: consumer.Dockerfile
+    command: python -u main.py
+    restart: on-failure
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+      - RABBIT_VHOST=my_vhost
+      - RABBIT_QUEUE=coordinates_to_process
     networks:
       - inner
     depends_on:
       - rabbitmq
-    #volumes:
-    #  - ./endpoint/src:/usr/src/app
-
-#   consumer:
-#     build: ./consumer
-#     command: python -u main.py
-#     restart: on-failure
-#     environment:
-#       - RABBIT_HOST=rabbitmq
-#       - RABBIT_PORT=5672
-#       - RABBIT_USER=guest
-#       - RABBIT_PASSWORD=guest
-#       - RABBIT_VHOST=my_vhost
-#       - RABBIT_QUEUE=coordinates_to_process
-#     volumes:
-#       - ./consumer:/usr/src/app
-#     networks:
-#       - inner
-#     depends_on:
-#       - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-alpine
@@ -68,11 +73,22 @@ services:
         - RABBITMQ_DEFAULT_VHOST=my_vhost
     ports:
         - 5672:5672
+    networks:
+        - inner
     volumes:
         - ./.env/rabbit/data/:/var/lib/rabbitmq/
         - ./.env/rabbit/log/:/var/log/rabbitmq/
+  
+  redis-broker:
+    image: redis:6.2-alpine
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass QweZxc123
     networks:
-        - inner
+      - inner
+    volumes: 
+      - ./.env/redis-broker/data/:/data
 
 networks:
   inner:

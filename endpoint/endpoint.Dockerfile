@@ -11,3 +11,4 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY ./src/ .
+RUN rm requirements.txt

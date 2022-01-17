@@ -11,4 +11,6 @@ COPY ./pip/requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy project
-COPY ./src/tasks.py .
+COPY ./src/ .
+RUN rm main.py
+RUN rm requirements.txt
