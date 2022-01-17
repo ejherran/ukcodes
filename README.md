@@ -86,7 +86,7 @@ Dado que el usuario puede subir archivos realmente grandes y que la consulta efe
 
 El siguiente diagrama ilustra conceptual mente el diseño interno del sistema: 
 
-[alt text](https://github.com/ejherran/ukcodes/blob/main/img/arq.png?raw=true)
+![alt text](https://github.com/ejherran/ukcodes/blob/main/img/arq.png?raw=true)
 
 
 # EJECUCIÓN:
@@ -103,8 +103,8 @@ Puede usar el comando docker logs -f [container] para ver en primer plano los me
 
 Para consumir el “endpoint” se recomienda el uso de PostMan, como si ilustra a continuación.
 
-[alt text](https://github.com/ejherran/ukcodes/blob/main/img/post.png?raw=true)
+![alt text](https://github.com/ejherran/ukcodes/blob/main/img/post.png?raw=true)
 
-[alt text](https://github.com/ejherran/ukcodes/blob/main/img/get.png?raw=true)
+![alt text](https://github.com/ejherran/ukcodes/blob/main/img/get.png?raw=true)
 
 Para conocer el razonamiento detrás de esta “abominación” consulte el archivo argument.txt
