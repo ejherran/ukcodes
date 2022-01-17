@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  
+  consumer:
+    build: ./consumer
+    command: python -u main.py
+    restart: on-failure
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+      - RABBIT_QUEUE=coordinates_to_process
+    volumes:
+      - ./consumer:/usr/src/app
+    networks:
+      - inner
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+    volumes:
+        - ./.env/rabbit/data/:/var/lib/rabbitmq/
+        - ./.env/rabbit/log/:/var/log/rabbitmq/
+    networks:
+        - inner
+
+networks:
+  inner:
+    driver: bridge
